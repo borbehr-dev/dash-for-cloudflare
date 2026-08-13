@@ -1,0 +1,35 @@
+name: Build Flutter Windows
+
+on:
+  workflow_dispatch: # Позволяет запускать сборку вручную кнопкой в интерфейсе GitHub
+
+jobs:
+  build:
+    name: Build Release Windows Exe
+    runs-on: windows-latest # Запускаем на чистой Windows-машине от GitHub
+
+    steps:
+      # 1. Скачиваем исходный код репозитория
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Устанавливаем и настраиваем Flutter
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable' # Берем стабильную версию
+
+      # 3. Скачиваем зависимости проекта
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 4. Собираем нативный релизный .exe
+      - name: Build Windows
+        run: flutter build windows --release
+
+      # 5. Упаковываем готовую папку в ZIP и выкладываем в артефакты
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dash-for-cloudflare-windows
+          path: build/windows/x64/runner/Release/
